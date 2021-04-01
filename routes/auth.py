@@ -3,7 +3,7 @@ import jwt
 import datetime
 import functools
 from models import Users
-import bcrypt
+import subprocess
 
 auth = Blueprint('auth', __name__)
 
@@ -23,7 +23,10 @@ def index():
     elif len(query) > 1:    # not neccessary, just in case
         result = {"Error": "Duplicate Email Address"}
         return make_response(jsonify(result), 400)
-    if not bcrypt.checkpw(password.encode('utf-8'), query[0].password.encode('utf-8')):
+    script = "php -r 'echo password_verify(\"{0}\",\"{1}\") ? \"true\" : \"false\";'".format(password, query[0].password.replace('$', '\$'))
+    ret = subprocess.Popen([script], stdout=subprocess.PIPE, shell=True)
+    (out, err) = ret.communicate()
+    if out.decode('utf-8') != "true":
         result = {"Error": "Passsword Incorrect"}
         return make_response(jsonify(result), 400)
     exp = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
