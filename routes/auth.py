@@ -4,6 +4,15 @@ import datetime
 import functools
 from models import Users
 import subprocess
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 auth = Blueprint('auth', __name__)
 
@@ -30,7 +39,7 @@ def index():
         result = {"Error": "Passsword Incorrect"}
         return make_response(jsonify(result), 400)
     exp = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    encoded = jwt.encode({'name': query[0].user_id, 'exp': exp}, 'SECRET_KEY', algorithm="HS256")
+    encoded = jwt.encode({'name': query[0].user_id, 'exp': exp}, SECRET_KEY, algorithm="HS256")
     result = {'user_id': query[0].user_id, 'token': encoded}
     return make_response(jsonify(result))
 
@@ -48,7 +57,7 @@ def login_required(method):
             result = {"Error": "Token Not Valid"}
             return make_response(jsonify(result), 400)
         try:
-            decoded = jwt.decode(token, 'SECRET_KEY', algorithms='HS256')
+            decoded = jwt.decode(token, SECRET_KEY, algorithms='HS256')
             user_id = decoded['name']
         except jwt.DecodeError:
             result = {"Error": "Token Not Valid"}
