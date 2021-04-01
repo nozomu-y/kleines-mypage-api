@@ -1,0 +1,9 @@
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /kleines-mypage-api/index.cgi/$1 [QSA,L]
+
+<Files ~ "(\.htaccess|app\.py)">
+    Deny from all
+</Files>
