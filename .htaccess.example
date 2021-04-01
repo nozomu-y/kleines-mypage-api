@@ -6,6 +6,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /kleines-mypage-api/index.cgi/$1  [QSA,L]
 
-<Files ~ "(\.htaccess|app\.py)">
+<Files ~ "(\.htaccess|\.env|app\.py)">
     Deny from all
 </Files>
