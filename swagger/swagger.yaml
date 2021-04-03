@@ -10,7 +10,7 @@ servers:
   - url: https://www.chorkleines.com/member/mypage/api/v1/
     description: Main server
   - url: http://localhost:8888/kleines-mypage-api/v1/
-    description: Development
+    description: Development server
 paths:
   /auth:
     post: 
@@ -54,16 +54,34 @@ paths:
     get:
       tags:
         - profile
-      summary: Get user profiles of every users
-      description: Get user profiles of every users
+      summary: Get user profiles of multiple users
+      description: Get user profiles of multiple users
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
+        - name: status
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: 
+                - PRESENT
+                - ABSENT
+                - RESIGNED
+        - name: part
+          in: query
           schema:
             type: string
+            enum:
+              - S
+              - A
+              - T
+              - B
+        - name: grade
+          in: query
+          schema:
+            type: integer
       responses:
         '200':
           description: Array of Profile models
@@ -81,6 +99,7 @@ paths:
                     grade: 20
                     part: S
                     part_full: Soprano
+                    status: PRESENT
                   - user_id: 2
                     first_name: 名
                     last_name: 姓
@@ -88,6 +107,7 @@ paths:
                     grade: 19
                     part: A
                     part_full: Alto
+                    status: ABSENT
   /profile/{user_id}:
     get:
       tags:
@@ -119,6 +139,7 @@ paths:
                   grade: 20
                   part: S
                   part_full: Soprano
+                  status: PRESENT
 components:
   securitySchemes:
     bearerAuth:
@@ -152,6 +173,9 @@ components:
         part_full:
           type: string
           example: Soprano
+        status:
+          type: string
+          example: PRESENT
 tags:
   - name: auth
     description: Authentication
