@@ -56,6 +56,8 @@ paths:
         - profile
       summary: Get user profiles of every users
       description: Get user profiles of every users
+      security:
+        - bearerAuth: []
       parameters:
         - name: Authorization
           in: header
@@ -92,12 +94,9 @@ paths:
       - profile
       summary: Get user profile from user_id
       description: Get user profile from user_id
+      security:
+        - bearerAuth: []
       parameters: 
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
         - name: user_id
           in: path
           required: true
@@ -121,6 +120,11 @@ paths:
                   part: S
                   part_full: Soprano
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Profile:
       type: object
