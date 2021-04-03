@@ -60,6 +60,32 @@ def get_profiles(_):
     return make_response(jsonify(result))
 
 
+@profile.route('/profile/me/', methods=['GET'])
+@login_required
+def get_my_profile(user_id):
+    query = Profiles.select(
+        Profiles.user_id,
+        Profiles.last_name,
+        Profiles.first_name,
+        Profiles.name_kana,
+        Profiles.grade,
+        Profiles.part,
+        Users.status
+    ).join(Users, on=(Profiles.user_id == Users.user_id).alias('Users')).where(Profiles.user_id == user_id)
+    part_full = get_part_full(query[0].part)
+    result = {
+        "user_id": query[0].user_id,
+        "last_name": query[0].last_name,
+        "first_name": query[0].first_name,
+        "name_kana": query[0].name_kana,
+        "grade": query[0].grade,
+        "part": query[0].part,
+        "part_full": part_full,
+        "status": query[0].Users.status
+    }
+    return make_response(jsonify(result))
+
+
 @profile.route('/profile/<int:user_id>', methods=['GET'])
 @login_required
 def get_profile_by_user_id(_, user_id):

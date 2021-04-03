@@ -108,6 +108,32 @@ paths:
                     part: A
                     part_full: Alto
                     status: ABSENT
+  /profile/me/:
+    get:
+      tags:
+      - profile
+      summary: Get my profile 
+      description: Get my profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile model
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/Profile'
+                example:
+                  user_id: 1
+                  first_name: 名
+                  last_name: 姓
+                  name_kana: カナ
+                  grade: 20
+                  part: S
+                  part_full: Soprano
+                  status: PRESENT
   /profile/{user_id}:
     get:
       tags:
