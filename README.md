@@ -10,6 +10,9 @@
             <!-- <img src="https://img.shields.io/github/v/release/nozomu-y/kleines-mypage-api" alt="Latest Stable Version"></img> -->
         <!-- </a> -->
         <img src="https://img.shields.io/github/repo-size/nozomu-y/kleines-mypage-api" alt="GitHub repo size"></img>
+        <a href="https://chorkleines.com/member/mypage/api/swagger/">
+            <img src="https://img.shields.io/badge/swagger-docs-brightgreen" alt="Swagger"></img>
+        </a>
         <br>
         <a href="https://github.com/nozomu-y/kleines-mypage-api/issues">
             <img src="https://img.shields.io/github/issues/nozomu-y/kleines-mypage-api?color=4e73df" alt="GitHub issues"></img>
@@ -22,6 +25,11 @@
 </p>
 
 # Installation
+
+## Python modules
 ```sh
 pip install -r requirements.txt
 ```
+
+## Shebang
+Change the shebang in the `index.cgi`.
