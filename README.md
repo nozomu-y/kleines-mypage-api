@@ -33,3 +33,13 @@ pip install -r requirements.txt
 
 ## Shebang
 Change the shebang in the `index.cgi`.
+
+## Swagger
+```sh
+wget -P swagger/ https://gist.githubusercontent.com/oseiskar/dbd51a3727fc96dcf5ed189fca491fb3/raw/63c5f2ef4aeafd5f0047030c4f609ad78a945402/swagger-yaml-to-html.py
+```
+
+```sh
+cd swagger
+python3 swagger-yaml-to-html.py < swagger.yaml >| index.html
+```

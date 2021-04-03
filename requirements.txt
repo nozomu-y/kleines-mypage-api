@@ -10,5 +10,6 @@ pycparser==2.20
 PyJWT==2.0.1
 PyMySQL==1.0.2
 python-dotenv==0.16.0
+PyYAML==5.4.1
 six==1.15.0
 Werkzeug==1.0.1

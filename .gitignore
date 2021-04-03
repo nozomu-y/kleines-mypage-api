@@ -4,3 +4,5 @@
 __pycache__
 node_modules
 robots.txt
+swagger/swagger-yaml-to-html.py
+
