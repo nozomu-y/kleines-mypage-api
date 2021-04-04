@@ -108,7 +108,7 @@ paths:
                     part: A
                     part_full: Alto
                     status: ABSENT
-  /profile/me/:
+  /profile/me:
     get:
       tags:
       - profile
