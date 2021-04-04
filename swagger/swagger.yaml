@@ -123,8 +123,6 @@ paths:
             application/json:
               schema:
                 type: object
-                items:
-                  $ref: '#/components/schemas/Profile'
                 example:
                   user_id: 1
                   first_name: 名
@@ -134,6 +132,8 @@ paths:
                   part: S
                   part_full: Soprano
                   status: PRESENT
+                  delinquent: 5000
+                  individual_accounting_total: 10000
   /profile/{user_id}:
     get:
       tags:
