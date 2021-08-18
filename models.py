@@ -52,3 +52,10 @@ class IndividualAccountingRecords(BaseModel):
 
     class Meta:
         table_name = "individual_accounting_records"
+
+class Admins(BaseModel):
+    user_id = IntegerField()
+    role = TextField()
+
+    class Meta:
+        table_name = 'admins'
