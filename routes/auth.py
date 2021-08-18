@@ -7,7 +7,7 @@ import subprocess
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
-from peewee import JOIN
+from conf import const
 
 load_dotenv(verbose=True)
 dotenv_path = join(dirname(__file__), '.env')
@@ -49,13 +49,12 @@ def index():
         Admins.role
     ).where(Admins.user_id == query_user[0].user_id)
     if len(query_admin) == 0:
-        admin_role = 'GENERAL'
+        admin_role = const.GENERAL
     else:
         admin_role = query_admin[0].role
     exp = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    jwt_name = '%d_%s' % (query_user[0].user_id, admin_role)
-    encoded = jwt.encode({'name': jwt_name, 'exp': exp}, SECRET_KEY, algorithm="HS256")
-    result = {'user_id': query_user[0].user_id, 'token': encoded, 'role': admin_role}
+    encoded = jwt.encode({'name': query_user[0].user_id, 'exp': exp}, SECRET_KEY, algorithm="HS256")
+    result = {'user_id': query_user[0].user_id, 'token': encoded, 'role': admin_role, 'status': query_user[0].status}
     return make_response(jsonify(result))
 
 
