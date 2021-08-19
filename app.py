@@ -3,8 +3,6 @@ from flask_restx import Api
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
-from werkzeug.routing import Rule
-#  from routes.auth import api as ap
 from routes import auth, profile
 
 load_dotenv(verbose=True)
@@ -32,8 +30,8 @@ api = Api(app,
           description='API developed for Kleines Mypage',
           doc='/swagger/',
           prefix='/v1',
-          license='MIT License',
-          license_url='https://github.com/nozomu-y/kleines-mypage-api/blob/main/LICENSE',
+          license='GitHub',
+          license_url='https://github.com/nozomu-y/kleines-mypage-api',
           authorizations=authorization
           )
 
