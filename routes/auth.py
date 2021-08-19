@@ -1,4 +1,5 @@
-from flask import jsonify, make_response, request, Blueprint
+from flask import request
+from flask_restx import Resource, fields, Namespace
 import jwt
 import datetime
 import functools
@@ -15,47 +16,65 @@ load_dotenv(dotenv_path)
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-auth = Blueprint('auth', __name__)
+api = Namespace('auth', description="Authentication")
+
+auth_request = api.model('authentication_request', {
+    'email': fields.String(default='example@gmail.com'),
+    'password': fields.String(default='password')
+})
+auth_response = api.model('authentication_response', {
+    'token': fields.String(default='JSON Web Token'),
+    'user_id': fields.Integer,
+    'role': fields.String,
+    'status': fields.String
+})
 
 
-@auth.route('/auth', methods=['POST'])
-def index():
-    email = request.json['email']
-    password = request.json['password']
-    query_user = Users.select(
-        Users.user_id,
-        Users.email,
-        Users.password,
-        Users.status
-    ).where(Users.email == email)
-    if len(query_user) == 0:
-        result = {"Error": "Email Address Not Found"}
-        return make_response(jsonify(result), 400)
-    elif len(query_user) > 1:    # not neccessary, just in case
-        result = {"Error": "Duplicate Email Address"}
-        return make_response(jsonify(result), 400)
-    if query_user[0].status == 'RESIGNED':
-        result = {"Error": "Login of Resigned User Not Allowed"}
-        return make_response(jsonify(result), 400)
-    script = "php -r 'echo password_verify(\"{0}\",\"{1}\") ? \"true\" : \"false\";'".format(password, query_user[0].password.replace('$', '\$'))
-    ret = subprocess.Popen([script], stdout=subprocess.PIPE, shell=True)
-    (out, _) = ret.communicate()
-    if out.decode('utf-8') != "true":
-        result = {"Error": "Passsword Incorrect"}
-        return make_response(jsonify(result), 400)
-    # check if user is admin
-    query_admin = Admins.select(
-        Admins.user_id,
-        Admins.role
-    ).where(Admins.user_id == query_user[0].user_id)
-    if len(query_admin) == 0:
-        admin_role = const.GENERAL
-    else:
-        admin_role = query_admin[0].role
-    exp = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    encoded = jwt.encode({'name': query_user[0].user_id, 'exp': exp}, SECRET_KEY, algorithm="HS256")
-    result = {'user_id': query_user[0].user_id, 'token': encoded, 'role': admin_role, 'status': query_user[0].status}
-    return make_response(jsonify(result))
+@api.route('')
+class Index(Resource):
+    @api.marshal_with(auth_response)
+    @api.doc(body=auth_request)
+    def post(self):
+        email = request.json['email']
+        password = request.json['password']
+        query_user = Users.select(
+            Users.user_id,
+            Users.email,
+            Users.password,
+            Users.status
+        ).where(Users.email == email)
+        if len(query_user) == 0:
+            result = "Email Address Not Found"
+            return api.abort(400, result)
+        elif len(query_user) > 1:    # not neccessary, just in case
+            result = "Duplicate Email Address"
+            return api.abort(400, result)
+        if query_user[0].status == 'RESIGNED':
+            result = "Login of Resigned User Not Allowed"
+            return api.abort(400, result)
+        script = "php -r 'echo password_verify(\"{0}\",\"{1}\") ? \"true\" : \"false\";'".format(
+            password, query_user[0].password.replace('$', '\$'))
+        ret = subprocess.Popen([script], stdout=subprocess.PIPE, shell=True)
+        (out, _) = ret.communicate()
+        if out.decode('utf-8') != "true":
+            result = "Passsword Incorrect"
+            return api.abort(400, result)
+        # check if user is admin
+        query_admin = Admins.select(
+            Admins.user_id,
+            Admins.role
+        ).where(Admins.user_id == query_user[0].user_id)
+        if len(query_admin) == 0:
+            admin_role = const.GENERAL
+        else:
+            admin_role = query_admin[0].role
+        exp = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        encoded = jwt.encode({'name': query_user[0].user_id, 'exp': exp}, SECRET_KEY, algorithm="HS256")
+        result = {'user_id': query_user[0].user_id,
+                  'token': encoded,
+                  'role': admin_role,
+                  'status': query_user[0].status}
+        return result
 
 
 def login_required(method):
@@ -63,22 +82,21 @@ def login_required(method):
     def wrapper(*args, **kwargs):
         header = request.headers.get('Authorization')
         if header is None:
-            result = {"Error": "Authorization Header Not Found"}
-            return make_response(jsonify(result), 400)
+            result = "Authorization Header Not Found"
+            return api.abort(400, result)
         try:
             _, token = header.split()
         except ValueError:
-            result = {"Error": "Token Not Valid"}
-            return make_response(jsonify(result), 400)
+            result = "Token Not Valid"
+            return api.abort(400, result)
         try:
             decoded = jwt.decode(token, SECRET_KEY, algorithms='HS256')
             user_id = decoded['name']
-            print(user_id)
         except jwt.DecodeError:
-            result = {"Error": "Token Not Valid"}
-            return make_response(jsonify(result), 400)
+            result = "Token Not Valid"
+            return api.abort(400, result)
         except jwt.ExpiredSignatureError:
-            result = {"Error": "Token Expired"}
-            return make_response(jsonify(result), 400)
-        return method(user_id, *args, **kwargs)
+            result = "Token Expired"
+            return api.abort(400, result)
+        return method(*args, user_id, **kwargs)
     return wrapper
