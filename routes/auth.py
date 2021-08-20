@@ -44,7 +44,7 @@ class Index(Resource):
             Users.status
         ).where(Users.email == email)
         if len(query_user) == 0:
-            result = "Email Address Not Found"
+            result = "Passsword or Email Incorrect"
             return api.abort(400, result)
         elif len(query_user) > 1:    # not neccessary, just in case
             result = "Duplicate Email Address"
@@ -57,7 +57,7 @@ class Index(Resource):
         ret = subprocess.Popen([script], stdout=subprocess.PIPE, shell=True)
         (out, _) = ret.communicate()
         if out.decode('utf-8') != "true":
-            result = "Passsword Incorrect"
+            result = "Passsword or Email Incorrect"
             return api.abort(400, result)
         # check if user is admin
         query_admin = Admins.select(
